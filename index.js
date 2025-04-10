@@ -29,12 +29,74 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+        const merchantCollection = client.db('nearNookDB').collection('merchantDetails')
+
+        const productCollection = client.db('nearNookDB').collection('products');
+
+
+
+
+
+        //Create Merchant account details
+
+        app.post('/merchant', async (req, res) => {
+            const newMerchant = req.body
+            const result = await merchantCollection.insertOne(newMerchant)
+            res.send(result)
+
+        })
+
+        // get merchant account details
+
+        app.get('/merchant', async (req, res) => {
+            const merchant = await merchantCollection.find().toArray()
+            res.send(merchant[merchant.length - 1])
+        })
+
+        //post a product details
+
+        app.post("/addProduct", async (req, res) => {
+            const newProduct = req.body
+            const result = await productCollection.insertOne(newProduct)
+            res.send(result)
+
+
+        })
+
+        //get Product
+        app.get('/addProduct', async (req, res) => {
+            const products = await productCollection.find().toArray()
+            res.send(products)
+        })
+
+        //delete a product
+
+        app.delete('/deleteProduct/:id', async (req, res) => {
+            const { id } = req.params;
+
+            try {
+                const deletedProduct = await productCollection.deleteOne({ _id: ObjectId(id) });
+
+                if (deletedProduct.deletedCount > 0) {
+                    res.json({ message: 'Product deleted successfully!' });
+                } else {
+                    res.status(404).json({ message: 'Product not found' });
+                }
+            } catch (error) {
+                res.status(500).json({ message: 'Error deleting product' });
+            }
+        });
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-        await client.close();
+        //await client.close();
     }
 }
 run().catch(console.dir);
