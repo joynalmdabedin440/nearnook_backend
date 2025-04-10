@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
@@ -73,10 +74,14 @@ async function run() {
         //delete a product
 
         app.delete('/deleteProduct/:id', async (req, res) => {
-            const { id } = req.params;
+            const { id } = req.params;  // Get the product ID from the URL
 
             try {
-                const deletedProduct = await productCollection.deleteOne({ _id: ObjectId(id) });
+                // Convert the string ID to an ObjectId for MongoDB query
+                const objectId = new ObjectId(id);
+
+                // Delete the product from the collection
+                const deletedProduct = await productCollection.deleteOne({ _id: objectId });
 
                 if (deletedProduct.deletedCount > 0) {
                     res.json({ message: 'Product deleted successfully!' });
@@ -84,6 +89,7 @@ async function run() {
                     res.status(404).json({ message: 'Product not found' });
                 }
             } catch (error) {
+                console.error('Error deleting product:', error);  // Log the error for debugging
                 res.status(500).json({ message: 'Error deleting product' });
             }
         });
