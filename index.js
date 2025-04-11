@@ -109,6 +109,32 @@ async function run() {
             const cart = await cartCollection.find().toArray()
             res.send(cart)
         })
+
+        //delete cart item 
+        app.delete('/deletecartitem/:id', async (req, res) => {
+            const { id } = req.params;  // Get the product ID from the URL
+            
+            
+            try {
+                // Convert the string ID to an ObjectId for MongoDB query
+                const objectId = new ObjectId(id);
+                // Delete the product from the collection
+                const deleteItem = await cartCollection.deleteOne({ _id: objectId });
+                if (deleteItem.deletedCount > 0) {
+                    res.json({ message: 'Product deleted successfully!' });
+                } else {
+                    res.status(404).json({ message: 'Product not found' });
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);  // Log the error for debugging
+                res.status(500).json({ message: 'Error deleting product' });
+            }
+        });
+        
+                
+
+
+
         
 
 
