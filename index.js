@@ -35,6 +35,8 @@ async function run() {
 
         const productCollection = client.db('nearNookDB').collection('products');
 
+        const cartCollection = client.db('nearNookDB').collection('cart');
+
 
 
 
@@ -52,7 +54,7 @@ async function run() {
 
         app.get('/merchant', async (req, res) => {
             const merchant = await merchantCollection.find().toArray()
-            res.send(merchant[merchant.length - 1])
+            res.send(merchant)
         })
 
         //post a product details
@@ -93,6 +95,21 @@ async function run() {
                 res.status(500).json({ message: 'Error deleting product' });
             }
         });
+
+        // add to cart
+        app.post('/addtocart', async (req, res) => {
+            const newCart = req.body
+            const result = await cartCollection.insertOne(newCart)
+            res.send(result)
+
+        })
+        
+        //get cart
+        app.get('/getcart', async (req, res) => {
+            const cart = await cartCollection.find().toArray()
+            res.send(cart)
+        })
+        
 
 
 
